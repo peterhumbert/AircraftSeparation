@@ -75,10 +75,13 @@ function readFile(csv)
 
   if search(readstring(open(csv)),'\r') != 0
     # file uses carriage return
-    rawFileRead = readdlm(open("Double 747 Flyover-KLM.csv"),'\r')
-    output = Array{Any}(length(rawFileRead),4)
-    output[:,:] = map(x->parseRawLine(x),output[:,:])
-    return readstring(open(csv))
+    rawFileRead = readdlm(open(csv),'\r')
+    rawFileRead = rawFileRead[1:end-1]
+    #println(rawFileRead)
+    #output = Array{Any}(length(rawFileRead),4)
+    println(size(rawFileRead))
+    output = map(x->parseRawLine(x),rawFileRead[:,:])
+    return output
   else
     # file uses line feed
     return readcsv(open(csv))
@@ -88,34 +91,34 @@ end
 function parseRawLine(str)
   # take a raw csv string; return array of string, Float64, Float64, string
   # example input: Mon 01:28:49 PM,46.2609,-92.5929,"36,000"
-  output = Array{Any}(1,4)
 
   # get indicies of all commas and double quotation marks in inputted string
-  commaIndices = findin(str,',') # expect 4
-  quoteIndices = findin(str,'\"') # expect 2
+  commaIndices = findin(str,',') # expect 3 or 4
+  quoteIndices = findin(str,'\"') # expect 0 or 2
 
-  # expect last comma to be in the altitude column; remove it.
-  # also remove double quotation marks
-  for i in [quoteIndices[2]; commaIndices[end]; quoteIndices[1]]
-    str = string(SubString(str,1,i-1),
-      SubString(str,i+1,length(str)))
+  if length(commaIndices) == 4 && length(quoteIndices) == 2
+    # expect last comma to be in the altitude column; remove it.
+    # also remove double quotation marks
+    for i in [quoteIndices[2]; commaIndices[end]; quoteIndices[1]]
+      str = string(SubString(str,1,i-1),
+        SubString(str,i+1,length(str)))
+    end
+    commaIndices = commaIndices[1:end-1]
   end
 
-  println(str)
-
+  # parse first 3 items
   count = 1
   i = 5 # remove 3-letter day abbrev
-  for j in commaIndices[1:end-1]
+  for j in commaIndices
     output[count] = SubString(str,i,j-1)
     i = j+1
     count += 1
   end
-  output[4] = SubString(str,i,length(str))
+  output[4] = SubString(str,i,length(str)) # parse altitude
 
+  output[2:3] = map(x->parse(Float64,x),output[2:3]) # convert lat/long
 
-  output[2:3] = map(x->parse(Float64,x),output[2:3])
-
-  println(output)
+  return output
 end
 
 #=
