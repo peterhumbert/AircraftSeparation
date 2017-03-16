@@ -15,6 +15,10 @@ function AircraftSeparation(csv1,csv2,datDay)
   n1 = size(importedData1)[1] # number of data samples for airplane 1
   n2 = size(importedData2)[1] # number of data samples for airplane 2
 
+  print(typeof(importedData1[1,1]))
+  print(typeof(importedData1[1,2]))
+  typeof(importedData1[1,3])
+  typeof(importedData1[1,4])
   # convert timestamp columns to type DateTime from string
   importedData1[:,1] = map(x->convertTimestamp(x,datDay),importedData1[:,1])
   importedData2[:,1] = map(x->convertTimestamp(x,datDay),importedData2[:,1])
@@ -71,7 +75,6 @@ function readFile(csv)
     output = Array{Any}(length(rawFileRead),4)
     output[:,:] = map(x->parseRawLine(x),output[:,:])
     return readstring(open(csv))
-    readli
   else
     # file uses line feed
     return readcsv(open(csv))
@@ -79,8 +82,9 @@ function readFile(csv)
 end
 
 function parseRawLine(str)
-  # take a raw csv string; return array of string, double, double, string
+  # take a raw csv string; return array of string, Float64, Float64, string
   # example input: Mon 01:28:49 PM,46.2609,-92.5929,"36,000"
+  output = Array{Any}(1,4)
 
   # get indicies of all commas and double quotation marks in inputted string
   commaIndices = findin(str,',') # expect 4
@@ -95,13 +99,19 @@ function parseRawLine(str)
 
   println(str)
 
+  count = 1
   i = 5 # remove 3-letter day abbrev
   for j in commaIndices[1:end-1]
-    println(SubString(str,i,j-1))
+    output[count] = SubString(str,i,j-1)
     i = j+1
+    count += 1
   end
+  output[4] = SubString(str,i,length(str))
 
-  println(SubString(str,i,length(str)))
+
+  output[2:3] = map(x->parse(Float64,x),output[2:3])
+
+  println(output)
 end
 
 #=
