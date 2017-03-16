@@ -60,8 +60,12 @@ end
 
 function convertAlt(rawAlt)
   comma = findin(rawAlt,",")[1]
-  return parse(Int, string(SubString(rawAlt,1,comma-1),
-    SubString(rawAlt,comma+1,length(rawAlt))))
+  if length(comma) == 0
+    return parst(Int,rawAlt)
+  else
+    return parse(Int, string(SubString(rawAlt,1,comma-1),
+      SubString(rawAlt,comma+1,length(rawAlt))))
+  end
 end
 
 function readFile(csv)
