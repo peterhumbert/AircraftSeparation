@@ -9,20 +9,19 @@ haversine(lat1,lon1,lat2,lon2) = 2 * 6372.8 *
 =#
 function AircraftSeparation(csv1,csv2,datDay)
   # read raw data
-  importedData1 = readcsv(open(csv1))
-  importedData2 = readcsv(open(csv2))
+  importedData1 = readFile(csv1)
+  importedData2 = readFile(csv2)
+
   n1 = size(importedData1)[1] # number of data samples for airplane 1
   n2 = size(importedData2)[1] # number of data samples for airplane 2
 
-  # prepare arrays to hold parsed timestamps
-
+  # convert timestamp columns to type DateTime from string
   importedData1[:,1] = map(x->convertTimestamp(x,datDay),importedData1[:,1])
   importedData2[:,1] = map(x->convertTimestamp(x,datDay),importedData2[:,1])
 
+  # convert altitude columns to type Int from string
   importedData1[:,end] = map(x->convertAlt(x),importedData1[:,end])
   importedData2[:,end] = map(x->convertAlt(x),importedData2[:,end])
-
-  TS1 = Array{DateTime}(n1)
 
   minimum(importedData1[:,1]) < minimum(importedData2[:,1]) ?
     minTS = minimum(importedData1[:,1]) : minTS = minimum(importedData2[:,1])
@@ -59,6 +58,20 @@ function convertAlt(rawAlt)
   comma = findin(rawAlt,",")[1]
   return parse(Int, string(SubString(rawAlt,1,comma-1),
     SubString(rawAlt,comma+1,length(rawAlt))))
+end
+
+function readFile(csv)
+  # take filename string; determine which type of line return the file uses
+  # then read the data appropriately
+  # fs = open(csv) # doesn't work -- TODO pass by ref issue?
+
+  if search(readstring(open(csv)),'\r') != 0
+    # file uses carriage return
+    return readstring(open(csv))
+  else
+    # file uses line feed
+    return readcsv(open(csv))
+  end
 end
 
 datDay = Date(2017,3,13)
