@@ -63,20 +63,52 @@ end
 function readFile(csv)
   # take filename string; determine which type of line return the file uses
   # then read the data appropriately
-  # fs = open(csv) # doesn't work -- TODO pass by ref issue?
+  # fs = open(csv) # doesn't work — TODO pass by ref issue?
 
   if search(readstring(open(csv)),'\r') != 0
     # file uses carriage return
+    rawFileRead = readdlm(open("Double 747 Flyover-KLM.csv"),'\r')
+    output = Array{Any}(length(rawFileRead),4)
+    output[:,:] = map(x->parseRawLine(x),output[:,:])
     return readstring(open(csv))
+    readli
   else
     # file uses line feed
     return readcsv(open(csv))
   end
 end
 
+function parseRawLine(str)
+  # take a raw csv string; return array of string, double, double, string
+  # example input: Mon 01:28:49 PM,46.2609,-92.5929,"36,000"
+
+  # get indicies of all commas and double quotation marks in inputted string
+  commaIndices = findin(str,',') # expect 4
+  quoteIndices = findin(str,'\"') # expect 2
+
+  # expect last comma to be in the altitude column; remove it.
+  # also remove double quotation marks
+  for i in [quoteIndices[2]; commaIndices[end]; quoteIndices[1]]
+    str = string(SubString(str,1,i-1),
+      SubString(str,i+1,length(str)))
+  end
+
+  println(str)
+
+  i = 5 # remove 3-letter day abbrev
+  for j in commaIndices[1:end-1]
+    println(SubString(str,i,j-1))
+    i = j+1
+  end
+
+  println(SubString(str,i,length(str)))
+end
+
+#=
 datDay = Date(2017,3,13)
 
 arrRaw = readcsv(open("test1.csv"))
 
 strTimes = Array{String}(size(arrRaw)[1],1)
 datTimes = Array{DateTime}(size(arrRaw)[1],1)
+=#
