@@ -75,21 +75,20 @@ function readFile(csv)
   countCarriages = length(findin(readstring(open(csv)),'\r'))
 
   if countCarriages != 0
-    output = Array{Any}(countCarriages,4)
-    count = 1
+    output = Array{Any}(countCarriages,4) # assume last line has '\r'
+    count = 1 # line number
 
     stream = open(csv)
     while (!eof(stream))
       str = readuntil(stream,'\r')
-      str = SubString(str,1,length(str)-1)
+      str = SubString(str,1,length(str)-1) # remove carriage return
 
       parsed = parseRawLine(str)
-      for i=1:4
-        output[count,i] = parsed[i]
-      end
+      output[count,:] = parsed[:]
+
       count += 1
     end
-    
+
     return output
   else
     # file uses line feed
