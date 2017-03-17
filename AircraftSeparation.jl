@@ -31,7 +31,23 @@ function AircraftSeparation(csv1,csv2,datDay)
   maximum(importedData1[:,1]) > maximum(importedData2[:,1]) ?
     maxTS = maximum(importedData1[:,1]) : maxTS = maximum(importedData2[:,1])
 
-  
+  tdiff = Int((maxTS-minTS)/1000)
+  lenInterp = tdiff+1
+
+  # Assemble interpolation array
+  # timestamps for interpolation, a/c #1 lat, a/c #1 long, a/c #1 alt,
+  # a/c #2 lat, a/c #2 long, a/c #2 alt, separation
+  interp = Array{Any}(lenInterp,8)
+
+  # initialize interpolation array with time values
+  for i=1:lenInterp
+    interp[i,1] = minTS + Dates.Second(i-1)
+  end
+
+  # calculate and store a/c #1 interpolated lat, long, and alt
+  for i=1:lenInterp
+    
+  end
 
 end
 
