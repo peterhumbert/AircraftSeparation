@@ -72,15 +72,24 @@ function readFile(csv)
   # take filename string; determine which type of line return the file uses
   # then read the data appropriately
   # fs = open(csv) # doesn't work — TODO pass by ref issue?
+  countCarriages = length(findin(readstring(open(csv)),'\r'))
 
-  if search(readstring(open(csv)),'\r') != 0
-    # file uses carriage return
-    rawFileRead = readdlm(open(csv),'\r')
-    rawFileRead = rawFileRead[1:end-1]
-    #println(rawFileRead)
-    #output = Array{Any}(length(rawFileRead),4)
-    println(size(rawFileRead))
-    output = map(x->parseRawLine(x),rawFileRead[:,:])
+  if countCarriages != 0
+    output = Array{Any}(countCarriages,4)
+    count = 1
+
+    stream = open(csv)
+    while (!eof(stream))
+      str = readuntil(stream,'\r')
+      str = SubString(str,1,length(str)-1)
+
+      parsed = parseRawLine(str)
+      for i=1:4
+        output[count,i] = parsed[i]
+      end
+      count += 1
+    end
+    
     return output
   else
     # file uses line feed
