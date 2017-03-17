@@ -1,3 +1,5 @@
+using Gadfly
+
 haversine(lat1,lon1,lat2,lon2) = 2 * 6372.8 *
   asin(sqrt(sind((lat2-lat1)/2)^2 +
   cosd(lat1) * cosd(lat2) * sind((lon2 - lon1)/2)^2))
@@ -26,16 +28,19 @@ function AircraftSeparation(csv1,csv2,datDay)
   minimum(importedData1[:,1]) < minimum(importedData2[:,1]) ?
     minTS = minimum(importedData1[:,1]) : minTS = minimum(importedData2[:,1])
 
-  #=
-  min(importedData1[:,1]) < min(importedData2[:,1]) ?
-    minTS = min(convert(Array{DateTime},importedData1[:,1])) :
-    minTS = min(convert(Array{DateTime},importedData2[:,1]))
-  =#
-
   maximum(importedData1[:,1]) > maximum(importedData2[:,1]) ?
     maxTS = maximum(importedData1[:,1]) : maxTS = maximum(importedData2[:,1])
 
-  print(maxTS-minTS)
+  
+
+end
+
+function proto_plotAltitude(importedData1,importedData2)
+  ticks = importedData1[end-180:60:end,1]
+  plot(layer(x=importedData1[end-180:end,1],y=importedData1[end-180:end,4],
+    Geom.line),
+    layer(x=importedData2[end-180:end,1],y=importedData2[end-180:end,4],
+    Geom.line), Guide.xticks(ticks=ticks))
 end
 
 function convertTimestamp(rawTime, datDay)
@@ -95,6 +100,8 @@ end
 function parseRawLine(str)
   # take a raw csv string; return array of string, Float64, Float64, string
   # example input: Mon 01:28:49 PM,46.2609,-92.5929,"36,000"
+
+  output = Array{Any}(1,4)
 
   # get indicies of all commas and double quotation marks in inputted string
   commaIndices = findin(str,',') # expect 3 or 4
