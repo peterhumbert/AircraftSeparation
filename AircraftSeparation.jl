@@ -55,12 +55,12 @@ function convertTimestamp(rawTime, datDay)
 end
 
 function convertAlt(rawAlt)
-  comma = findin(rawAlt,",")[1]
+  comma = findin(rawAlt,",")
   if length(comma) == 0
-    return parst(Int,rawAlt)
+    return parse(Int,rawAlt)
   else
-    return parse(Int, string(SubString(rawAlt,1,comma-1),
-      SubString(rawAlt,comma+1,length(rawAlt))))
+    return parse(Int, string(SubString(rawAlt,1,comma[1]-1),
+      SubString(rawAlt,comma[1]+1,length(rawAlt))))
   end
 end
 
@@ -112,7 +112,7 @@ function parseRawLine(str)
 
   # parse first 3 items
   count = 1
-  i = 5 # remove 3-letter day abbrev
+  i = 1
   for j in commaIndices
     output[count] = SubString(str,i,j-1)
     i = j+1
