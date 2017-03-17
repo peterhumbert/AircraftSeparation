@@ -15,10 +15,6 @@ function AircraftSeparation(csv1,csv2,datDay)
   n1 = size(importedData1)[1] # number of data samples for airplane 1
   n2 = size(importedData2)[1] # number of data samples for airplane 2
 
-  print(typeof(importedData1[1,1]))
-  print(typeof(importedData1[1,2]))
-  typeof(importedData1[1,3])
-  typeof(importedData1[1,4])
   # convert timestamp columns to type DateTime from string
   importedData1[:,1] = map(x->convertTimestamp(x,datDay),importedData1[:,1])
   importedData2[:,1] = map(x->convertTimestamp(x,datDay),importedData2[:,1])
