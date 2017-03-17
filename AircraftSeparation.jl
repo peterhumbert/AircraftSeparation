@@ -124,12 +124,3 @@ function parseRawLine(str)
 
   return output
 end
-
-#=
-datDay = Date(2017,3,13)
-
-arrRaw = readcsv(open("test1.csv"))
-
-strTimes = Array{String}(size(arrRaw)[1],1)
-datTimes = Array{DateTime}(size(arrRaw)[1],1)
-=#
