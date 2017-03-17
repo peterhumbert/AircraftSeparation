@@ -107,7 +107,7 @@ function parseRawLine(str)
   if length(commaIndices) == 4 && length(quoteIndices) == 2
     # expect last comma to be in the altitude column; remove it.
     # also remove double quotation marks
-    for i in [quoteIndices[2]; commaIndices[end]; quoteIndices[1]]
+    for i in reverse(quoteIndices)
       str = string(SubString(str,1,i-1),
         SubString(str,i+1,length(str)))
     end
