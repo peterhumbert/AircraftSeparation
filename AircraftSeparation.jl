@@ -31,8 +31,8 @@ function AircraftSeparation(csv1,csv2,datDay)
   maximum(importedData1[:,1]) < maximum(importedData2[:,1]) ?
     maxTS = maximum(importedData1[:,1]) : maxTS = maximum(importedData2[:,1])
 
-  tdiff = Int((maxTS-minTS)/1000)
-  lenInterp = tdiff+1
+  Tdiff = Int((maxTS-minTS)/1000)
+  lenInterp = Tdiff+1
 
   # Assemble interpolation array
   # timestamps for interpolation, a/c #1 lat, a/c #1 long, a/c #1 alt,
@@ -44,11 +44,73 @@ function AircraftSeparation(csv1,csv2,datDay)
     interp[i,1] = minTS + Dates.Second(i-1)
   end
 
+  # initialize iterators for the importedData arrays
+  k1 = 1
+  k2 = 1
+  while importedData1[k1,1] < minTS
+    k1 += 1
+  end
+  while importedData2[k2,1] < minTS
+    k2 += 1
+  end
+  k1 > 1 ? k1 -= 1 : k2 -= 1 # one iterator will be 1 and one will be greater
+                             # than 1. Decrement the one greater than 1 s.t.
+                             # the interpolation is always forward-looking
+
   # calculate and store a/c #1 interpolated lat, long, and alt
   for i=1:lenInterp
-    
+    if interp[i,1] == importedData1[k1,1]
+      interp[i,2:4] = importedData1[k1,2:4]
+    elseif interp[i,1] > importedData1[k1,1] &&
+           interp[i,1] < importedData1[k1+1,1]
+      interp[i,2:4] = weightedAverage(importedData1[k1+1,1]-importedData1[k1,1],
+                                      interp[i,1]-importedData1[k1,1],
+                                      importedData1[k1,2:3],
+                                      importedData1[k1+1,2:3],
+                                      importedData1[k1,4],
+                                      importedData1[k1+1,4])
+    else # interp[i,1] == importedData1[k1+1,1] exiting range
+      interp[i,2:4] = importedData1[k1+1,2:4]
+      k1 += 1
+    end
   end
 
+  # calculate and store a/c #2 interpolated lat, long, and alt
+  for i=1:lenInterp
+    if interp[i,1] == importedData2[k2,1]
+      interp[i,5:7] = importedData2[k2,2:4]
+    elseif interp[i,1] > importedData2[k2,1] &&
+           interp[i,1] < importedData2[k2+1,1]
+      interp[i,5:7] = weightedAverage(importedData2[k2+1,1]-importedData2[k2,1],
+                                      interp[i,1]-importedData2[k2,1],
+                                      importedData2[k2,2:3],
+                                      importedData2[k2+1,2:3],
+                                      importedData2[k2,4],
+                                      importedData2[k2+1,4])
+    else # interp[i,1] == importedData2[k2+1,1] exiting range
+      interp[i,5:7] = importedData2[k2+1,2:4]
+      k2 += 1
+    end
+  end
+
+  for i=1:lenInterp
+    interp[i,end] = haversine(interp[i,2],interp[i,3],
+                              interp[i,5],interp[i,6])
+  end
+
+  return interp
+end
+
+function weightedAverage(tInterval, tFromStart, coord1, coord2, alt1, alt2)
+  # return let, long, alt
+  tInterval = Int(tInterval/1000) # convert from milliseconds
+  tFromStart = Int(tFromStart/1000) # convert from milliseconds
+  latDiff = coord2[1]-coord1[1]
+  longDiff = coord2[2]-coord1[2]
+  altDiff = alt2-alt1
+  return [coord1[1] + tFromStart/tInterval*latDiff,
+          coord1[2] + tFromStart/tInterval*longDiff,
+          alt1 + tFromStart/tInterval*altDiff]
 end
 
 function proto_plotAltitude(importedData1,importedData2)
