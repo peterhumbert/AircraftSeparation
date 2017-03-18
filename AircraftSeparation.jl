@@ -25,10 +25,10 @@ function AircraftSeparation(csv1,csv2,datDay)
   importedData1[:,end] = map(x->convertAlt(x),importedData1[:,end])
   importedData2[:,end] = map(x->convertAlt(x),importedData2[:,end])
 
-  minimum(importedData1[:,1]) < minimum(importedData2[:,1]) ?
+  minimum(importedData1[:,1]) > minimum(importedData2[:,1]) ?
     minTS = minimum(importedData1[:,1]) : minTS = minimum(importedData2[:,1])
 
-  maximum(importedData1[:,1]) > maximum(importedData2[:,1]) ?
+  maximum(importedData1[:,1]) < maximum(importedData2[:,1]) ?
     maxTS = maximum(importedData1[:,1]) : maxTS = maximum(importedData2[:,1])
 
   tdiff = Int((maxTS-minTS)/1000)
