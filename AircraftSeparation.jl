@@ -127,6 +127,9 @@ function convertTimestamp(rawTime, datDay)
   if lowercase(SubString(strTime,14,15)) == "pm" &&
     SubString(strTime,5,6) != "12"
     hAdd = 12
+  elseif lowercase(SubString(strTime,14,15)) == "am" &&
+    SubString(strTime,5,6) == "12"
+    hAdd = -12
   else
     hAdd = 0
   end
