@@ -9,6 +9,8 @@ println(interpolatedData[5419,8]*1000*3.28/232) # output lateral spacing when
                                                 # unit: plane lengths of 232 ft
     # the higher aircraft (KLM) is further south and further west
 plotInLengths = plot(y=interpolatedData[4500:7000,end]*3.28*1000/232,
+  Guide.xlabel("time (sec)"),
+  Guide.ylabel("Difference in Position (Aircraft Lengths)"),
   yintercept=[0.5771305097],xintercept=[919],
   Geom.line,Geom.hline(color=colorant"yellow"),
   Geom.vline(color=colorant"yellow"))
